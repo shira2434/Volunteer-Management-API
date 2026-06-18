@@ -1,8 +1,3 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Volunteer.Entities;
 using Volunteer.Repository;
 
@@ -10,39 +5,51 @@ namespace Volunteer.Service
 {
     public class VolunteerService
     {
-        public IVolunteerRepository repo { get; set; }=new VolunteerRepository();
-        public void AddVolunteer(MyVolunteer volunteer) {
-            //repo= new VolunteerRepository();
-            if (volunteer.LastName == null)
+        private readonly IVolunteerRepository _repo;
+
+        public VolunteerService(IVolunteerRepository repo)
+        {
+            _repo = repo;
+        }
+
+        public void AddVolunteer(VolunteerDto dto)
+        {
+            var volunteer = new MyVolunteer();
+
+            if (!string.IsNullOrWhiteSpace(dto.FullName) && string.IsNullOrWhiteSpace(dto.LastName))
             {
-                //firstName="Chani Cohen
-                //names=[Chani,Cohen]
-                var names=volunteer.FirstName.Split(' ');
+                var names = dto.FullName.Split(' ', 2);
                 volunteer.FirstName = names[0];
-                volunteer.LastName = names[1];
+                volunteer.LastName = names.Length > 1 ? names[1] : string.Empty;
             }
-            repo.AddVolunteer(volunteer);
+            else
+            {
+                volunteer.FirstName = dto.FirstName ?? string.Empty;
+                volunteer.LastName = dto.LastName ?? string.Empty;
+            }
+
+            _repo.AddVolunteer(volunteer);
         }
 
         public IEnumerable<MyVolunteer> GetAllVolunteers()
         {
-            var list= repo.GetAllVolunteers();
-            foreach (var item in list) {
+            var list = _repo.GetAllVolunteers().ToList();
+            foreach (var item in list)
                 item.LastName += "!";
-            }
             return list;
         }
 
-        public MyVolunteer GetVolunteer(int id)
+        public MyVolunteer? GetVolunteer(int id) => _repo.GetVolunteer(id);
+
+        public bool UpdateVolunteer(int id, string lastName)
         {
-            return repo.GetVolunteer(id);
+            var volunteer = _repo.GetVolunteer(id);
+            if (volunteer == null) return false;
+            volunteer.LastName = $"{lastName} ({volunteer.LastName})";
+            _repo.UpdateVolunteer(id, volunteer);
+            return true;
         }
 
-        public void UpdateVolunteer(int id, string lastName)
-        {
-            var myVolunteer = repo.GetVolunteer(id);
-            myVolunteer.LastName=lastName+$" ({myVolunteer.LastName})";
-            repo.UpdateVolunteer(id, myVolunteer);
-        }
+        public bool DeleteVolunteer(int id) => _repo.DeleteVolunteer(id);
     }
 }

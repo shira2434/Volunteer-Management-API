@@ -1,16 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using Volunteer.Entities;
 
 namespace Volunteer.Repository
 {
-    public static class DataContext
+    public class DataContext : DbContext
     {
-        public static List<MyVolunteer> Volunteers { get; set; }=new List<MyVolunteer>() { 
-        new MyVolunteer(){ Id=1,FirstName="Yael",LastName="Gutman" },
-        new MyVolunteer(){ Id=2,FirstName="Yehudit",LastName="Vaiss"} };
+        public DataContext(DbContextOptions<DataContext> options) : base(options) { }
+
+        public DbSet<MyVolunteer> Volunteers => Set<MyVolunteer>();
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<MyVolunteer>().HasData(
+                new MyVolunteer { Id = 1, FirstName = "Yael", LastName = "Gutman" },
+                new MyVolunteer { Id = 2, FirstName = "Yehudit", LastName = "Vaiss" }
+            );
+        }
     }
 }

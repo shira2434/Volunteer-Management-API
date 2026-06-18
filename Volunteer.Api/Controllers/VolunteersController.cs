@@ -1,7 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Volunteer.Entities;
 using Volunteer.Service;
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace Volunteer.Api.Controllers
 {
@@ -9,39 +8,53 @@ namespace Volunteer.Api.Controllers
     [ApiController]
     public class VolunteersController : ControllerBase
     {
-        private readonly VolunteerService _service = new VolunteerService();
-        // GET: api/<VolunteersController>
+        private readonly VolunteerService _service;
+
+        public VolunteersController(VolunteerService service)
+        {
+            _service = service;
+        }
+
+        // GET: api/volunteers
         [HttpGet]
-        public IEnumerable<MyVolunteer> Get()
+        public ActionResult<IEnumerable<MyVolunteer>> Get()
         {
-            return _service.GetAllVolunteers();
+            return Ok(_service.GetAllVolunteers());
         }
 
-        // GET api/<VolunteersController>/5
+        // GET api/volunteers/5
         [HttpGet("{id}")]
-        public MyVolunteer Get(int id)
+        public ActionResult<MyVolunteer> Get(int id)
         {
-            return _service.GetVolunteer(id);
+            var volunteer = _service.GetVolunteer(id);
+            if (volunteer == null) return NotFound($"Volunteer with id {id} not found");
+            return Ok(volunteer);
         }
 
-        // POST api/<VolunteersController>
+        // POST api/volunteers
         [HttpPost]
-        public void Post([FromBody] MyVolunteer volunteer)
+        public ActionResult Post([FromBody] VolunteerDto dto)
         {
-            _service.AddVolunteer(volunteer);
+            _service.AddVolunteer(dto);
+            return StatusCode(201, "Volunteer added successfully");
         }
 
-        // PUT api/<VolunteersController>/5
+        // PUT api/volunteers/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string lastName)
+        public ActionResult Put(int id, [FromBody] string lastName)
         {
-            _service.UpdateVolunteer(id, lastName);
+            if (!_service.UpdateVolunteer(id, lastName))
+                return NotFound($"Volunteer with id {id} not found");
+            return NoContent();
         }
 
-        // DELETE api/<VolunteersController>/5
+        // DELETE api/volunteers/5
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public ActionResult Delete(int id)
         {
+            if (!_service.DeleteVolunteer(id))
+                return NotFound($"Volunteer with id {id} not found");
+            return NoContent();
         }
     }
 }

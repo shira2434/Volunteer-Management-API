@@ -1,37 +1,45 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Volunteer.Entities;
 
 namespace Volunteer.Repository
 {
-    public class VolunteerRepository:IVolunteerRepository
+    public class VolunteerRepository : IVolunteerRepository
     {
-        public IEnumerable<MyVolunteer> GetAllVolunteers()
+        private readonly DataContext _context;
+
+        public VolunteerRepository(DataContext context)
         {
-            return DataContext.Volunteers;
+            _context = context;
         }
+
+        public IEnumerable<MyVolunteer> GetAllVolunteers() => _context.Volunteers.ToList();
 
         public void AddVolunteer(MyVolunteer volunteer)
         {
-            DataContext.Volunteers.Add(volunteer);
+            _context.Volunteers.Add(volunteer);
+            _context.SaveChanges();
         }
 
-        public MyVolunteer GetVolunteer(int id)
-        {
-            return DataContext.Volunteers.Where(MyVolunteer => MyVolunteer.Id == id).FirstOrDefault();
-        }
+        public MyVolunteer? GetVolunteer(int id) =>
+            _context.Volunteers.FirstOrDefault(v => v.Id == id);
 
         public void UpdateVolunteer(int id, MyVolunteer myVolunteer)
         {
-            var volunteer = DataContext.Volunteers.Where(MyVolunteer => MyVolunteer.Id == id).FirstOrDefault();
+            var volunteer = _context.Volunteers.FirstOrDefault(v => v.Id == id);
             if (volunteer != null)
             {
                 volunteer.FirstName = myVolunteer.FirstName;
                 volunteer.LastName = myVolunteer.LastName;
+                _context.SaveChanges();
             }
+        }
+
+        public bool DeleteVolunteer(int id)
+        {
+            var volunteer = _context.Volunteers.FirstOrDefault(v => v.Id == id);
+            if (volunteer == null) return false;
+            _context.Volunteers.Remove(volunteer);
+            _context.SaveChanges();
+            return true;
         }
     }
 }
