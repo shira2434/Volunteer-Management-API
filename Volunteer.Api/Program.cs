@@ -18,7 +18,9 @@ namespace Volunteer.Api
                 options.UseSqlite("Data Source=volunteers.db"));
 
             builder.Services.AddScoped<IVolunteerRepository, VolunteerRepository>();
+            builder.Services.AddScoped<IRoleRepository, RoleRepository>();
             builder.Services.AddScoped<VolunteerService>();
+            builder.Services.AddScoped<RoleService>();
 
             var app = builder.Build();
 

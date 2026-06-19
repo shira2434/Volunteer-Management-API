@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using Volunteer.Entities;
 
 namespace Volunteer.Repository
@@ -11,7 +12,8 @@ namespace Volunteer.Repository
             _context = context;
         }
 
-        public IEnumerable<MyVolunteer> GetAllVolunteers() => _context.Volunteers.ToList();
+        public IEnumerable<MyVolunteer> GetAllVolunteers() =>
+            _context.Volunteers.Include(v => v.Role).ToList();
 
         public void AddVolunteer(MyVolunteer volunteer)
         {
@@ -20,7 +22,7 @@ namespace Volunteer.Repository
         }
 
         public MyVolunteer? GetVolunteer(int id) =>
-            _context.Volunteers.FirstOrDefault(v => v.Id == id);
+            _context.Volunteers.Include(v => v.Role).FirstOrDefault(v => v.Id == id);
 
         public void UpdateVolunteer(int id, MyVolunteer myVolunteer)
         {
@@ -29,6 +31,7 @@ namespace Volunteer.Repository
             {
                 volunteer.FirstName = myVolunteer.FirstName;
                 volunteer.LastName = myVolunteer.LastName;
+                volunteer.RoleId = myVolunteer.RoleId;
                 _context.SaveChanges();
             }
         }

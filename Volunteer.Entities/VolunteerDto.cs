@@ -12,5 +12,7 @@ namespace Volunteer.Entities
 
         [StringLength(50)]
         public string? LastName { get; set; }
+
+        public int? RoleId { get; set; }
     }
 }

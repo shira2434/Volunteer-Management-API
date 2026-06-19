@@ -28,6 +28,7 @@ namespace Volunteer.Service
                 volunteer.LastName = dto.LastName ?? string.Empty;
             }
 
+            volunteer.RoleId = dto.RoleId;
             _repo.AddVolunteer(volunteer);
         }
 

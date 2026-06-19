@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Volunteer.Entities
 {
@@ -13,6 +14,11 @@ namespace Volunteer.Entities
         [Required(ErrorMessage = "Last name is required")]
         [StringLength(50)]
         public string LastName { get; set; } = string.Empty;
+
+        public int? RoleId { get; set; }
+
+        [ForeignKey(nameof(RoleId))]
+        public Role? Role { get; set; }
     }
 }
  
